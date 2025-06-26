@@ -11,17 +11,14 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import img_to_array
 
 # --- Google Drive Model Config ---
+MODEL_URL = "https://drive.google.com/uc?id=1mn8-vVUTlPo44xIPCi-jtsksJIVx1Oil"
 MODEL_PATH = "vgg16_lung_cancer_cnn.keras"
-GDRIVE_ID = "1mn8-vVUTlPo44xIPCi-jtsksJIVx1Oil"  # Replace with your real model file ID
-GDRIVE_URL = f"https://drive.google.com/uc?id={GDRIVE_ID}"
 
-# --- Download model from Google Drive if missing ---
 def download_model_if_missing():
     if not os.path.exists(MODEL_PATH):
-        with st.spinner("📥 Downloading CNN model from Google Drive..."):
-            gdown.download(GDRIVE_URL, MODEL_PATH, quiet=False)
-            st.success("✅ Model downloaded.")
-            st.write(f"📦 Model size: {round(os.path.getsize(MODEL_PATH) / 1024 / 1024, 2)} MB")
+        gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
+        st.success("✅ Model downloaded.")
+        st.write(f"📦 Model size: {round(os.path.getsize(MODEL_PATH) / 1024 / 1024, 2)} MB")
 
 # --- Load models ---
 @st.cache_resource
