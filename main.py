@@ -11,7 +11,7 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import img_to_array
 
 # --- Google Drive Model Config ---
-MODEL_URL = "https://drive.google.com/uc?id=1mn8-vVUTlPo44xIPCi-jtsksJIVx1Oil"
+MODEL_URL = "https://drive.google.com/file/d/1mn8-vVUTlPo44xIPCi-jtsksJIVx1Oil"
 MODEL_PATH = "vgg16_lung_cancer_cnn.keras"
 
 def download_model_if_missing():
