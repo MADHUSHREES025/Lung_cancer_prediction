@@ -11,14 +11,17 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import img_to_array
 
 # --- Google Drive Model Config ---
-MODEL_URL = "https://drive.google.com/file/d/1mn8-vVUTlPo44xIPCi-jtsksJIVx1Oil"
+MODEL_URL = "https://drive.google.com/uc?id=1mn8-vVUTlPo44xIPCi-jtsksJIVx1Oil"
 MODEL_PATH = "vgg16_lung_cancer_cnn.keras"
 
 def download_model_if_missing():
     if not os.path.exists(MODEL_PATH):
+        st.info("📥 Downloading CNN model from Google Drive...")
         gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
-        st.success("✅ Model downloaded.")
-        st.write(f"📦 Model size: {round(os.path.getsize(MODEL_PATH) / 1024 / 1024, 2)} MB")
+        if os.path.exists(MODEL_PATH):
+            st.success("✅ Model downloaded successfully.")
+        else:
+            st.error("❌ Failed to download model.")
 
 # --- Load models ---
 @st.cache_resource
@@ -28,24 +31,23 @@ def load_models():
     cnn = load_model(MODEL_PATH)
     return xgb, cnn
 
-# Load models
 xgb_model, cnn_model = load_models()
 
-# --- Class labels for CNN ---
+# --- Class labels ---
 class_labels = ['adenocarcinoma', 'large.cell.carcinoma', 'normal', 'squamous.cell.carcinoma']
 
-# --- Gender encoder setup ---
+# --- Gender encoder ---
 gender_encoder = LabelEncoder()
 gender_encoder.classes_ = np.array(['F', 'M'])
 
-# --- Streamlit Page Setup ---
+# --- Streamlit layout ---
 st.set_page_config(page_title="Lung Cancer Predictor", layout="centered")
-st.title("🫁 Lung Cancer Risk & CT Scan Detection")
+st.title("🫁 Lung Cancer Risk & CT Scan Prediction")
 
-# --- Tabs: Form + Image Scan ---
+# --- Tabs ---
 tab1, tab2 = st.tabs(["🧬 Clinical Risk + CT Scan", "🖼️ CT Scan Only"])
 
-# --- Tab 1: XGBoost + CNN ---
+# ------------------ Tab 1: Clinical Risk + CT ------------------
 with tab1:
     st.subheader("🧬 Step 1: Enter Clinical Details")
 
@@ -124,9 +126,9 @@ with tab1:
                     except Exception as e:
                         st.warning(f"⚠️ Error processing image: {e}")
 
-# --- Tab 2: CT Scan Only ---
+# ------------------ Tab 2: CT Scan Only ------------------
 with tab2:
-    st.subheader("🖼️ Upload CT Scan for Direct Cancer Type Detection")
+    st.subheader("🖼️ Upload CT Scan for Direct Classification")
     uploaded_image = st.file_uploader("Upload CT Scan", type=["jpg", "jpeg", "png"], key="ct_only")
 
     if uploaded_image:
