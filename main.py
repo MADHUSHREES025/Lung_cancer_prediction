@@ -3,16 +3,31 @@ import pandas as pd
 import numpy as np
 import joblib
 import io
+import os
+import gdown
 from PIL import Image
 from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import img_to_array
 
+# --- Google Drive model download config ---
+MODEL_PATH = "vgg16_lung_cancer_cnn.keras"
+GDRIVE_FILE_ID = "1mn8-vVUTlPo44xIPCi-jtsksJIVx1Oil"  # 🔁 Replace with your real file ID
+GDRIVE_URL = f"https://drive.google.com/file/d/1mn8-vVUTlPo44xIPCi-jtsksJIVx1Oil/view?usp=drive_link"
+
+# --- Download CNN model if missing ---
+def download_model_if_missing():
+    if not os.path.exists(MODEL_PATH):
+        with st.spinner("📥 Downloading CNN model from Google Drive..."):
+            gdown.download(GDRIVE_URL, MODEL_PATH, quiet=False)
+            st.success("✅ CNN model downloaded successfully.")
+
 # --- Load models ---
 @st.cache_resource
 def load_models():
     xgb = joblib.load("xgboost_lung_model_survey.pkl")
-    cnn = load_model("vgg16_lung_cancer_cnn.keras")
+    download_model_if_missing()
+    cnn = load_model(MODEL_PATH)
     return xgb, cnn
 
 xgb_model, cnn_model = load_models()
@@ -82,7 +97,7 @@ with tab1:
         else:
             st.error(f"⚠️ High risk detected (Probability: {xgb_proba:.2f})")
             st.markdown("### Step 2: Upload CT Scan for Type Detection")
-            
+
             if st.button("Continue to CT Scan Classifier ➡️"):
                 uploaded = st.file_uploader("Upload CT Scan Image", type=["jpg", "jpeg", "png"], key="ct_inline")
                 if uploaded:
